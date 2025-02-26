@@ -12,7 +12,7 @@
 RootModule = 'BlackBytesBox.Manifested.Version.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.20251.11124'
+ModuleVersion = '0.20251.11219'
 
 # Supported PSEditions
 #CompatiblePSEditions = 'Desktop'
@@ -51,7 +51,7 @@ Description = 'A simple library that converts DateTime values into version compo
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-#RequiredModules = @(@{ModuleName = 'CoreePower.Lib'; ModuleVersion = '0.20251.11124'; })
+#RequiredModules = @(@{ModuleName = 'CoreePower.Lib'; ModuleVersion = '0.20251.11219'; })
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
