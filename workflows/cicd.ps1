@@ -1,36 +1,36 @@
 
-#Set-DotNetNugetSource -SourceName "SourcePackages"
 
 . "$PSScriptRoot/cicd_secrets.ps1"
 
-#Remove-OldModuleVersions -ModuleName STROM.NANO.PSWH.CICD
-#Update-ModuleIfNewer -ModuleName STROM.NANO.PSWH.CICD
+Install-Module -Name BlackBytesBox.Manifested.Version -Repository PSGallery -Force -AllowClobber
+Install-Module -Name BlackBytesBox.Manifested.Git -Repository PSGallery -Force -AllowClobber
 
-
-$result = Convert-DateTimeToVersion64SecondsString -VersionBuild 0 -VersionMajor 0
+$result1 = Convert-DateTimeTo64SecPowershellVersion -VersionBuild 0
+$result2 = Get-GitCurrentBranch
+$result3 = Get-GitTopLevelDirectory
 
 ##############################
 
 # Define the path to your module folder (adjust "MyModule" as needed)
-$moduleFolder = "$PSScriptRoot\..\source\BlackBytesBox.Manifested.Version"
-Update-ManifestModuleVersion -ManifestPath "$moduleFolder" -NewVersion "$($result.VersionMajor).$($result.VersionMinor).$($result.VersionRevision)"
-$moduleManifest = "$moduleFolder/BlackBytesBox.Manifested.Version.psd1" -replace '[/\\]', [System.IO.Path]::DirectorySeparatorChar
+$moduleFolder = "$result3\source\BlackBytesBox.Manifested.Git"
+Update-ManifestModuleVersion -ManifestPath "$moduleFolder" -NewVersion "$($result.VersionBuild).$($result.VersionMajor).$($result.VersionMinor)"
+$moduleManifest = "$moduleFolder/BlackBytesBox.Manifested.Git.psd1" -replace '[/\\]', [System.IO.Path]::DirectorySeparatorChar
 
 # Validate the module manifest
 Write-Host "===> Testing module manifest at: $moduleManifest" -ForegroundColor Cyan
 Test-ModuleManifest -Path $moduleManifest
 
 # Import the module for testing
-Write-Host "===> Importing module from: $moduleFolder" -ForegroundColor Cyan
-Import-Module $moduleFolder -Force
+#Write-Host "===> Importing module from: $moduleFolder" -ForegroundColor Cyan
+#Import-Module $moduleFolder -Force
 
 # Replace 'MyFunction' with one of your module's exported command names to verify it loads
-if (Get-Command -Module BlackBytesBox.Manifested.Version -Name "cppm" -ErrorAction SilentlyContinue) {
-    Write-Host "===> Module imported successfully and 'MyFunction' is available." -ForegroundColor Green
-}
-else {
-    Write-Host "===> Warning: 'MyFunction' is not available. Verify your module's exports." -ForegroundColor Yellow
-}
+#if (Get-Command -Module BlackBytesBox.Manifested.Git -Name "Get-GitTopLevelDirectory" -ErrorAction SilentlyContinue) {
+    #Write-Host "===> Module imported successfully and 'MyFunction' is available." -ForegroundColor Green
+#}
+#else {
+#    Write-Host "===> Warning: 'MyFunction' is not available. Verify your module's exports." -ForegroundColor Yellow
+#}
 
 # Publish the module to LocalGallery
 Write-Host "===> Publishing module to LocalGallery..." -ForegroundColor Cyan
