@@ -12,7 +12,7 @@
 RootModule = 'BlackBytesBox.Manifested.Version.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.20251.9946'
+ModuleVersion = '0.20251.11124'
 
 # Supported PSEditions
 #CompatiblePSEditions = 'Desktop'
@@ -51,7 +51,7 @@ Description = 'A simple library that converts DateTime values into version compo
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-#RequiredModules = @(@{ModuleName = 'CoreePower.Lib'; ModuleVersion = '0.20251.9946'; })
+#RequiredModules = @(@{ModuleName = 'CoreePower.Lib'; ModuleVersion = '0.20251.11124'; })
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -69,7 +69,7 @@ Description = 'A simple library that converts DateTime values into version compo
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Convert-DateTimeTo64SecVersionComponents','Convert-64SecVersionComponentsToDateTime','Convert-DateTimeTo64SecPowershellVersion','Convert-64SecPowershellVersionToDateTime')
+FunctionsToExport = @('Convert-DateTimeTo64SecVersionComponents','Convert-64SecVersionComponentsToDateTime','Convert-DateTimeTo64SecPowershellVersion','Convert-64SecPowershellVersionToDateTime','Test-ModuleVersionToComputedDateTime')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -78,7 +78,7 @@ CmdletsToExport = @()
 # VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @('cdv64','cdv64r','cdv64ps','cdv64psr')
+AliasesToExport = @('cdv64','cdv64r','cdv64ps','cdv64psr','tmvcd')
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()

@@ -266,3 +266,50 @@ function Convert-64SecPowershellVersionToDateTime {
         ComputedDateTime = $result.ComputedDateTime
     }
 }
+
+function Test-ModuleVersionToComputedDateTime {
+    <#
+    .SYNOPSIS
+        Reads the current module's version and computes the corresponding DateTime.
+        
+    .DESCRIPTION
+        This function retrieves the version of the current module (expected in the format:
+        VersionBuild.NewMajor.NewMinor where NewMajor maps to the original VersionMinor and 
+        NewMinor maps to the original VersionRevision). It then calls 
+        Convert-64SecPowershellVersionToDateTime to convert the version back into an approximate
+        DateTime value, and outputs the computed DateTime.
+        
+    .EXAMPLE
+        PS C:\> Test-ModuleVersionToComputedDateTime
+        Current module version: 1.20250.1234
+        Computed DateTime from module version: 2025-06-15T12:34:56Z
+    #>
+    [CmdletBinding()]
+    [alias("tmvcd")]
+    param()
+    
+    # Retrieve the current module from which this function is running.
+    $currentModule = Get-Module -Name $MyInvocation.MyCommand.Module.Name
+    if (-not $currentModule) {
+        Write-Error "Current module could not be determined."
+        return
+    }
+    
+    $versionString = $currentModule.Version.ToString()
+    Write-Host "Current module version: $versionString"
+    
+    # Expecting the version in the format: Build.NewMajor.NewMinor (e.g., 1.20250.1234)
+    $parts = $versionString -split '\.'
+    if ($parts.Count -ne 3) {
+        Write-Error "Module version format is not as expected (Build.NewMajor.NewMinor)."
+        return
+    }
+    
+    [int]$build = $parts[0]
+    [int]$newMajor = $parts[1]
+    [int]$newMinor = $parts[2]
+    
+    $result = Convert-64SecPowershellVersionToDateTime -VersionBuild $build -VersionMajor $newMajor -VersionMinor $newMinor
+    Write-Host "Computed DateTime from module version: $($result.ComputedDateTime)"
+}
+
