@@ -1,74 +1,68 @@
 # BlackBytesBox.Manifested.Version
 
-# PowerShell Module Utilities
+A simple PowerShell library that encodes DateTime values into version components with 64‑second granularity. It supports two versioning schemes:
+- **4-part versioning** (Assembly+NuGet): Generates a version string in the format *Build.Major.Minor.Revision*.
+- **3-part versioning** (PowerShell+NuGet): Produces a simplified version string in the format *Build.Major.Minor*.
 
-A small collection of PowerShell functions designed to simplify module and repository management. This repo includes:
+## Overview
 
-- **Register-LocalGalleryRepository (`rlg`)**  
-  Ensures a local repository folder exists, removes any pre-existing repository with the same name, and registers a new local repository with a Trusted installation policy.
+- **Convert-DateTimeTo64SecVersionComponents**  
+  Encodes a DateTime into a four‑part version (Build.Major.Minor.Revision).
 
-- **Convert-DateTimeToVersion64SecondsString (`cdv64`)**  
-  Converts a UTC DateTime into version components (build, major, minor, revision) using a 64-second granularity for versioning suitable for NuGet packages and assemblies.
+- **Convert-64SecVersionComponentsToDateTime**  
+  Reconstructs an approximate DateTime from the version components.
 
-- **Update-ManifestModuleVersion (`ummv`)**  
-  Recursively searches for a PSD1 manifest in a directory and updates its ModuleVersion while preserving comments and formatting.
+- **Convert-DateTimeTo64SecPowershellVersion**  
+  Wraps the conversion to produce a simplified three‑part version (Build.Major.Minor)
 
-- **Update-ModuleIfNewer (`umn`)**  
-  Searches the specified repository (default: PSGallery) for a module update and installs it only if a newer version is available, avoiding unnecessary forced downloads.
+- **Convert-64SecPowershellVersionToDateTime**  
+  Reverses the simplified version mapping back into an approximate DateTime.
 
-- **Remove-OldModuleVersions**  
-  Cleans up older installed versions of a module, retaining only the latest version.
+- **Test-ModuleVersionToComputedDateTime**  
+  Retrieves the current module's version, decodes it, and prints the computed DateTime.
 
-## Example Commands
+## Getting Started
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Unrestricted -Command "& {
-    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted -Force;
-    Install-PackageProvider -Name NuGet -Force -MinimumVersion 2.8.5.201 -Scope CurrentUser | Out-Null;
-    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
-    Install-Module PowerShellGet -Force -Scope CurrentUser -AllowClobber -WarningAction SilentlyContinue | Out-Null;
-    Install-Module -Name BlackBytesBox.Manifested.Version -Scope CurrentUser -AllowClobber -Force -Repository PSGallery;
-    Start-Process powershell -ArgumentList '-NoExit','-ExecutionPolicy', 'Unrestricted', '-Command', 'inuget; idot -Channels @(''9.0'') ; dotnet tool install --global BlackBytesBox.Distributed; satcom vscode'
-}" ; exit
-```
-
-Register a local gallery repository:
+1. **Import the Module**
 ```powershell
 
-powershell -NoProfile -ExecutionPolicy unrestricted -Command "& Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted -Force; Install-Module -Name STROM.NANO.PSWH.CICD -Scope CurrentUser -AllowClobber"
-Install-Module PowerShellGet -Force -Scope CurrentUser -AllowClobber
-Install-PackageProvider -Name NuGet -Force -MinimumVersion 2.8.5.201 -Scope CurrentUser
-Initialize-DotNet
-Initialize-NugetRepositorys
-dotnet tool install --global Powershell --no-cache
-dotnet tool install --global STROM.ATOM.TOOL.Common
+Import-Module BlackBytesBox.Manifested.Version
 
-Register-LocalGalleryRepository -RepositoryPath "$HOME/source/gallery" -RepositoryName "LocalGallery"
+# Generate version components from the current DateTime
+$resultComponents = Convert-DateTimeTo64SecVersionComponents -VersionBuild 1 -VersionMajor 0 -InputDate (Get-Date)
+Write-Host "Four-part Version: $($resultComponents.VersionFull)"
 
-$versionInfo = Convert-DateTimeToVersion64SecondsString -VersionBuild 1 -VersionMajor 0
-Write-Host "Version: $($versionInfo.VersionFull)"
+# Reconstruct DateTime from the version components
+$reconstructed = Convert-64SecVersionComponentsToDateTime `
+    -VersionBuild $resultComponents.VersionBuild `
+    -VersionMajor $resultComponents.VersionMajor `
+    -VersionMinor $resultComponents.VersionMinor `
+    -VersionRevision $resultComponents.VersionRevision
+Write-Host "Reconstructed DateTime: $($reconstructed.ComputedDateTime)"
 
-Update-ManifestModuleVersion -ManifestPath "C:\projects\MyDscModule" -NewVersion "2.0.0"
+# Generate a simplified three-part version for the module
+$versionInfo = Convert-DateTimeTo64SecPowershellVersion -VersionBuild 1 -InputDate (Get-Date)
+Write-Host "Module Version: $($versionInfo.VersionFull)"
 
-Update-ModuleIfNewer -ModuleName "STROM.NANO.PSWH.CICD"
+# Decode the simplified version back to an approximate DateTime
+$decodedInfo = Convert-64SecPowershellVersionToDateTime -VersionBuild 1 -VersionMajor 20250 -VersionMinor 1234
+Write-Host "Computed DateTime: $($decodedInfo.ComputedDateTime)"
 
-Remove-OldModuleVersions -ModuleName "STROM.NANO.PSWH.CICD"
+Test-ModuleVersionToComputedDateTime
 ```
 
-### General BlackBytesBox naming conventions
----
+## Developer Notes
 
-BlackBytesBox.Manifested.Version (PowerShell module)
-BlackBytesBox.Constructed (MSBuild lib)
-BlackBytesBox.Unified (NET Standard library)
-BlackBytesBox.Distributed (Dotnet tool)
-BlackBytesBox.Composed (NET library)
-BlackBytesBox.Dosed (NET-Windows library)
-BlackBytesBox.Routed (ASP.NET library)
-BlackBytesBox.Bladed (ASP.NET Razor library)
-BlackBytesBox.Retired (old .NET Framework 4.0 library)
-BlackBytesBox.Seeded (template project)
-BlackBytesBox.[Adjective].[Qualifier] (for further clarity when needed)
+- **Precision:**  
+  The conversion discards the lower 6 bits (each representing 64 seconds), so the computed DateTime is approximate.
 
-BlackBytesBox.Manifested.Version.Base  (Powershell module)
-BlackBytesBox.Distributed.Core  (Dotnet tool)
+- **Simplified Mapping:**  
+  The simplified version remaps the four-part version to a three-part version (ignoring the original VersionMajor).
+
+- **Aliases:**  
+  - `cdv64` → Convert-DateTimeTo64SecVersionComponents  
+  - `cdv64r` → Convert-64SecVersionComponentsToDateTime  
+  - `cdv64ps` → Convert-DateTimeTo64SecPowershellVersion  
+  - `cdv64psr` → Convert-64SecPowershellVersionToDateTime  
+  - `tmvcd` → Test-ModuleVersionToComputedDateTime
+

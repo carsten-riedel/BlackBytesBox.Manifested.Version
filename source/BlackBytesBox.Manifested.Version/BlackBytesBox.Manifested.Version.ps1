@@ -165,22 +165,18 @@ function Convert-64SecVersionComponentsToDateTime {
 function Convert-DateTimeTo64SecPowershellVersion {
     <#
     .SYNOPSIS
-        Converts a DateTime to a simplified three-part version string using 64-second encoding.
+        Converts a DateTime into a simplified three-part version string for PowerShell module versioning.
         
     .DESCRIPTION
-        This function wraps Convert-DateTimeTo64SecVersionComponents and remaps its four-part version
-        into a simplified three-part version. The mapping is:
-          - New Build remains the same.
-          - New Major is the original VersionMinor.
-          - New Minor is the original VersionRevision.
-        The resulting version is in the form: "Build.NewMajor.NewMinor"
-        (e.g., if the original output is 1.0.20250.1234, the simplified version becomes "1.20250.1234").
+        This function generates a simplified version string based on the provided DateTime using 64-second granularity.
+        The output format is "Build.NewMajor.NewMinor", which is ideal for versioning PowerShell modules and NuGet packages.
+        Use this function to assign a unique, time-based version number without exposing internal conversion details.
         
     .PARAMETER VersionBuild
         An integer representing the build version component.
         
     .PARAMETER InputDate
-        An optional UTC DateTime. If not provided, the current UTC time is used.
+        An optional UTC DateTime value. If not provided, the current UTC time is used.
         
     .EXAMPLE
         PS C:\> Convert-DateTimeTo64SecPowershellVersion -VersionBuild 1 -InputDate (Get-Date)
@@ -194,22 +190,18 @@ function Convert-DateTimeTo64SecPowershellVersion {
         [datetime]$InputDate = (Get-Date).ToUniversalTime()
     )
 
-    # Call the original conversion function, assuming VersionMajor is 0.
-    $original = Convert-DateTimeTo64SecVersionComponents -VersionBuild $VersionBuild -VersionMajor 0 -InputDate $InputDate
+    # Generate version components using the base conversion function.
+    $result = Convert-DateTimeTo64SecVersionComponents -VersionBuild $VersionBuild -VersionMajor 0 -InputDate $InputDate
 
-    # Remap: New Major = original VersionMinor, New Minor = original VersionRevision.
-    $newMajor = $original.VersionMinor
-    $newMinor = $original.VersionRevision
-
-    $versionFull = "$($original.VersionBuild).$newMajor.$newMinor"
-
+    # Return the simplified version as "Build.NewMajor.NewMinor"
     return @{
-        VersionFull  = $versionFull;
-        VersionBuild = $original.VersionBuild;
-        VersionMajor = $newMajor;
-        VersionMinor = $newMinor
+        VersionFull  = "$($result.VersionBuild).$($result.VersionMinor).$($result.VersionRevision)";
+        VersionBuild = $result.VersionBuild;
+        VersionMajor = $result.VersionMinor;
+        VersionMinor = $result.VersionRevision
     }
 }
+
 
 
 function Convert-64SecPowershellVersionToDateTime {
